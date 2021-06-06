@@ -3,20 +3,28 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\API\lists\CityController;
+use App\Http\Controllers\API\lists\GKController;
 use App\Http\Controllers\API\lists\MetroController;
-use App\Models\User;
-use Illuminate\Http\Request;
+//use App\Models\User;
+//use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
-    public function getAdminData () {
+    public function loadData () {
+        return $this->getAdminData();
+    }
+
+    public static function getAdminData () {
 //        $users = ;
         $cities = CityController::index();
         $metro = MetroController::index();
-        return response(['ok',
+        $gkList = GKController::index();
+        return [
+            'status' => 'ok',
 //            'users' => $users,
             'cities' => $cities,
-            'metro' => $metro
-        ],200);
+            'metro' => $metro,
+            'gkList' => $gkList
+        ];
     }
 }

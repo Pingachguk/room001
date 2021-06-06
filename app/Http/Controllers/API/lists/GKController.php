@@ -4,10 +4,10 @@ namespace App\Http\Controllers\API\lists;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DataController;
-use App\Models\lists\City;
+use App\Models\lists\GK;
 use Illuminate\Http\Request;
 
-class CityController extends Controller
+class GKController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +16,7 @@ class CityController extends Controller
      */
     public static function index()
     {
-        return City::orderBy('name')->get();
+        return GK::orderBy('name')->with('city')->get();
     }
 
     /**
@@ -27,8 +27,9 @@ class CityController extends Controller
      */
     public function store(Request $request)
     {
-        City::create([
-                'name' => $request->input('cityName'),
+        GK::create([
+                'name' => $request->input('gkName'),
+                'city_id' => $request->input('cityId'),
             ]
         );
         return response(DataController::getAdminData(),201);
@@ -54,12 +55,11 @@ class CityController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->input('cityName');
-        info($data);
-        City::where('id', $id)
+        GK::where('id', $id)
             ->update([
-                'name' => $request->input('cityName'),
-                ]);
+                'name' => $request->input('gkName'),
+                'city_id' => $request->input('cityId'),
+            ]);
         return response(DataController::getAdminData(),200);
     }
 
@@ -71,7 +71,7 @@ class CityController extends Controller
      */
     public function destroy($id)
     {
-        City::destroy($id);
+        GK::destroy($id);
         return response(DataController::getAdminData(),200);
     }
 }

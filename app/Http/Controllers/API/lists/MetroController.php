@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\lists;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\DataController;
 use App\Models\lists\Metro;
 use Illuminate\Http\Request;
 
@@ -31,7 +32,7 @@ class MetroController extends Controller
                 'city_id' => $request->input('cityId'),
             ]
         );
-        return response(['metro' => $this->index()],201);
+        return response(DataController::getAdminData(),201);
     }
 
     /**
@@ -40,10 +41,10 @@ class MetroController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        info('show');
-    }
+//    public function show($id)
+//    {
+//        info('show');
+//    }
 
     /**
      * Update the specified resource in storage.
@@ -54,15 +55,12 @@ class MetroController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->input('metroName');
-        $cityId = $request->input('cityId');
-        info([$id, $data, $cityId]);
         Metro::where('id', $id)
             ->update([
                 'name' => $request->input('metroName'),
                 'city_id' => $request->input('cityId'),
             ]);
-        return response(['metro' => $this->index()],200);
+        return response(DataController::getAdminData(),200);
     }
 
     /**
@@ -74,6 +72,6 @@ class MetroController extends Controller
     public function destroy($id)
     {
         Metro::destroy($id);
-        return response(['metro' => $this->index()],200);
+        return response(DataController::getAdminData(),200);
     }
 }

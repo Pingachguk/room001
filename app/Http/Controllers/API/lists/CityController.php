@@ -16,9 +16,7 @@ class CityController extends Controller
      */
     public static function index()
     {
-        $cities = City::orderBy('name')->get();
-        info($cities);
-        return $cities;
+        return City::orderBy('name')->get();
     }
 
     /**

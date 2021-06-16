@@ -100,7 +100,7 @@ class Client
         foreach ($appointmentsJson as $itemApp) {
             $appClubId = $itemApp['club_id'];
             $appAppointmentId = $itemApp['appointment_id'];
-            $appKey = Clubs::getKeyByClub($appClubId);
+            $appKey = Clubs::getClubKeyById($appClubId);
 
             $statusName = [
                 'canceled' => 'Отменено',
@@ -115,7 +115,7 @@ class Client
                 $clientJson['metrics']['training'][$itemApp['status']] += 1;
 
                 $appoint = RequestDB::getAppoint(
-                    Clubs::getKeyByClub($appClubId), $utoken, $appClubId, $appAppointmentId
+                    Clubs::getClubKeyById($appClubId), $utoken, $appClubId, $appAppointmentId
                 );
                 $appointJson = $appoint->json();
 

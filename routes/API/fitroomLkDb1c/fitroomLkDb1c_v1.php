@@ -15,8 +15,11 @@ use App\Http\Controllers\API\fitroomLkDb1c\LK1cController;
 */
 Route::get('clubs', [LK1cController::class, 'clubs']);
 Route::get('club/{id}', [LK1cController::class, 'club']);
+Route::get('trainers', [LK1cController::class, 'trainers']);
+Route::get('products', [LK1cController::class, 'trainers']);
 Route::post('login', [LK1cController::class, 'login']);
 Route::post('reg', [LK1cController::class, 'register']);
-Route::post('reset', [LK1cController::class, 'resetPassword']);
 Route::get('client', [LK1cController::class, 'getClient']);
 Route::put('client', [LK1cController::class, 'updateClient']);
+Route::post('confirm_phone', [LK1cController::class, 'confirmPhone']);
+Route::post('reset_password', [LK1cController::class, 'resetPassword']);

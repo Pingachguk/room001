@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\API\fitroomLkDb1c;
 
+use App\Http\Controllers\API\ClubController;
 use App\Http\Controllers\Controller;
-use App\Services\Clubs;
+use App\Services\fitroomLkDb1c\Trainers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -17,8 +18,30 @@ class LK1cController extends Controller
         return response($response->json()['data'], 200);
     }
 
-    public function clubs(Request $request)
+    public function clubs()
     {
-        return response(Clubs::getClubs(), 200);
+        $clubs = ClubController::index();
+        return response($clubs);
     }
+
+    public function trainers(Request $request)
+    {
+        $clubId = $request->header("club_id");
+        $utoken = $request->cookie("utoken");
+//        $data = $request->input();
+
+        $trainers = Trainers::getTrainers($clubId, $utoken);
+        return response($trainers);
+    }
+
+//    public function getTrainersAll(Request $request)
+//    {
+//        $clubId = $request->header("club_id");
+//        $utoken = $request->cookie("utoken");
+//        $data = $request->input();
+//
+//        $trainers = Trainer::getAllTrainers($clubId, $utoken);
+//
+//        return response($trainers);
+//    }
 }

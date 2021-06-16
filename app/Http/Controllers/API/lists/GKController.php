@@ -4,11 +4,13 @@ namespace App\Http\Controllers\API\lists;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DataController;
+use App\Http\Traits\DBTrait;
 use App\Models\lists\GK;
 use Illuminate\Http\Request;
 
 class GKController extends Controller
 {
+    use DBTrait;
     /**
      * Display a listing of the resource.
      *
@@ -28,7 +30,7 @@ class GKController extends Controller
     public function store(Request $request)
     {
         GK::create([
-                'name' => $request->input('gkName'),
+                'name' => $request->input('itemName'),
                 'city_id' => $request->input('cityId'),
             ]
         );
@@ -57,7 +59,7 @@ class GKController extends Controller
     {
         GK::where('id', $id)
             ->update([
-                'name' => $request->input('gkName'),
+                'name' => $request->input('itemName'),
                 'city_id' => $request->input('cityId'),
             ]);
         return response(DataController::getAdminData(),200);

@@ -4,13 +4,11 @@ namespace App\Http\Controllers\API\lists;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DataController;
-use App\Http\Traits\DBTrait;
-use App\Models\lists\Metro;
+use App\Models\lists\Filial;
 use Illuminate\Http\Request;
 
-class MetroController extends Controller
+class FilialController extends Controller
 {
-    use DBTrait;
     /**
      * Display a listing of the resource.
      *
@@ -18,11 +16,7 @@ class MetroController extends Controller
      */
     public static function index()
     {
-        $metro = new Metro();
-//        return $metro->orderBy('name')->with(?????city($metro))->get();
-
-        return Metro::orderBy('name')->with('city')->get();
-//        return Metro::orderBy('name')->with(DBTrait::city())->get();
+        return Filial::orderBy('name')->get();
     }
 
     /**
@@ -33,9 +27,8 @@ class MetroController extends Controller
      */
     public function store(Request $request)
     {
-        Metro::create([
-                'name' => $request->input('metroName'),
-                'city_id' => $request->input('cityId'),
+        Filial::create([
+                'name' => $request->input('filialName'),
             ]
         );
         return response(DataController::getAdminData(),201);
@@ -61,10 +54,11 @@ class MetroController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Metro::where('id', $id)
+        $data = $request->input('filialName');
+        info($data);
+        Filial::where('id', $id)
             ->update([
-                'name' => $request->input('metroName'),
-                'city_id' => $request->input('cityId'),
+                'name' => $request->input('filialName'),
             ]);
         return response(DataController::getAdminData(),200);
     }
@@ -77,7 +71,7 @@ class MetroController extends Controller
      */
     public function destroy($id)
     {
-        Metro::destroy($id);
+        Filial::destroy($id);
         return response(DataController::getAdminData(),200);
     }
 }

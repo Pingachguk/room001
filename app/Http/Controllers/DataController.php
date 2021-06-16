@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\API\ClubController;
 use App\Http\Controllers\API\lists\CityController;
+use App\Http\Controllers\API\lists\FilialController;
 use App\Http\Controllers\API\lists\GKController;
 use App\Http\Controllers\API\lists\MetroController;
 //use App\Models\User;
@@ -19,12 +21,16 @@ class DataController extends Controller
         $cities = CityController::index();
         $metro = MetroController::index();
         $gkList = GKController::index();
+        $filials = FilialController::index();
+        $clubs = ClubController::index();
         return [
             'status' => 'ok',
 //            'users' => $users,
             'cities' => $cities,
             'metro' => $metro,
-            'gkList' => $gkList
+            'gkList' => $gkList,
+            'filials' => $filials,
+            'clubs' => $clubs
         ];
     }
 }

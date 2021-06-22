@@ -11,6 +11,7 @@ class Clubs
         return Club::find($id);
     }
 
+//    [club_id => apikey]
     public static function getClubKeyById($clubId) {
         $club = Club::find($clubId);
         return $club->apikey;

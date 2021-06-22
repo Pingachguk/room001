@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\fitroomLkDb1c;
 use App\Http\Controllers\API\ClubController;
 use App\Http\Controllers\Controller;
 use App\Services\fitroomLkDb1c\Trainers;
+use App\Services\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -28,20 +29,18 @@ class LK1cController extends Controller
     {
         $clubId = $request->header("club_id");
         $utoken = $request->cookie("utoken");
-//        $data = $request->input();
 
         $trainers = Trainers::getTrainers($clubId, $utoken);
         return response($trainers);
     }
 
-//    public function getTrainersAll(Request $request)
-//    {
-//        $clubId = $request->header("club_id");
-//        $utoken = $request->cookie("utoken");
-//        $data = $request->input();
-//
-//        $trainers = Trainer::getAllTrainers($clubId, $utoken);
-//
-//        return response($trainers);
-//    }
+    public function products(Request $request)
+    {
+        $clubId = $request->header('club_id');
+        $utoken = $request->cookie('usertoken');
+
+        $products = Shop::getShopProducts($clubId, $utoken);
+        return response($products);
+    }
+
 }

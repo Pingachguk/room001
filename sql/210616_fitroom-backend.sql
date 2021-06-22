@@ -7,7 +7,7 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 SET NAMES utf8mb4;
 
-DROP TABLE IF EXISTS `cities`;
+-- DROP TABLE IF EXISTS `cities`;
 CREATE TABLE `cities` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -18,39 +18,149 @@ CREATE TABLE `cities` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-DROP TABLE IF EXISTS `club-metro`;
-CREATE TABLE `club-metro` (
-  `club_id` bigint unsigned NOT NULL,
-  `metro_id` bigint unsigned NOT NULL,
-  KEY `club_metro_club_id_foreign` (`club_id`),
-  KEY `club_metro_metro_id_foreign` (`metro_id`),
-  CONSTRAINT `club_metro_club_id_foreign` FOREIGN KEY (`club_id`) REFERENCES `clubs` (`id`),
-  CONSTRAINT `club_metro_metro_id_foreign` FOREIGN KEY (`metro_id`) REFERENCES `metros` (`id`)
+-- DROP TABLE IF EXISTS `failed_jobs`;
+CREATE TABLE `failed_jobs` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-DROP TABLE IF EXISTS `clubs`;
-CREATE TABLE `clubs` (
+-- DROP TABLE IF EXISTS `filials`;
+CREATE TABLE `filials` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `filials_name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `g_k_s`;
+CREATE TABLE `g_k_s` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `city_id` bigint unsigned NOT NULL,
-  `gk_id` bigint unsigned DEFAULT NULL,
-  `filial_id` bigint unsigned NOT NULL,
-  `address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `club_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `apikey` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `clubs_name_unique` (`name`),
-  UNIQUE KEY `clubs_club_id_unique` (`club_id`),
-  UNIQUE KEY `clubs_apikey_unique` (`apikey`),
-  KEY `clubs_city_id_foreign` (`city_id`),
-  KEY `clubs_gk_id_foreign` (`gk_id`),
-  KEY `clubs_filial_id_foreign` (`filial_id`),
-  CONSTRAINT `clubs_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`),
-  CONSTRAINT `clubs_filial_id_foreign` FOREIGN KEY (`filial_id`) REFERENCES `filials` (`id`),
-  CONSTRAINT `clubs_gk_id_foreign` FOREIGN KEY (`gk_id`) REFERENCES `g_k_s` (`id`)
+  UNIQUE KEY `g_k_s_name_unique` (`name`),
+  KEY `g_k_s_city_id_foreign` (`city_id`),
+  CONSTRAINT `g_k_s_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `migrations`;
+CREATE TABLE `migrations` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `password_resets`;
+CREATE TABLE `password_resets` (
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  KEY `password_resets_email_index` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `telescope_entries`;
+CREATE TABLE `telescope_entries` (
+  `sequence` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `family_hash` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `should_display_on_index` tinyint(1) NOT NULL DEFAULT '1',
+  `type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`sequence`),
+  UNIQUE KEY `telescope_entries_uuid_unique` (`uuid`),
+  KEY `telescope_entries_batch_id_index` (`batch_id`),
+  KEY `telescope_entries_family_hash_index` (`family_hash`),
+  KEY `telescope_entries_created_at_index` (`created_at`),
+  KEY `telescope_entries_type_should_display_on_index_index` (`type`,`should_display_on_index`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `telescope_entries_tags`;
+CREATE TABLE `telescope_entries_tags` (
+  `entry_uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  KEY `telescope_entries_tags_entry_uuid_tag_index` (`entry_uuid`,`tag`),
+  KEY `telescope_entries_tags_tag_index` (`tag`),
+  CONSTRAINT `telescope_entries_tags_entry_uuid_foreign` FOREIGN KEY (`entry_uuid`) REFERENCES `telescope_entries` (`uuid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `telescope_monitoring`;
+CREATE TABLE `telescope_monitoring` (
+  `tag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email_verified_at` timestamp NULL DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `metros`;
+CREATE TABLE `metros` (
+                          `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                          `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                          `city_id` bigint unsigned NOT NULL,
+                          `created_at` timestamp NULL DEFAULT NULL,
+                          `updated_at` timestamp NULL DEFAULT NULL,
+                          PRIMARY KEY (`id`),
+                          UNIQUE KEY `metros_name_unique` (`name`),
+                          KEY `metros_city_id_foreign` (`city_id`),
+                          CONSTRAINT `metros_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- DROP TABLE IF EXISTS `clubs`;
+CREATE TABLE `clubs` (
+                         `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+                         `created_at` timestamp NULL DEFAULT NULL,
+                         `updated_at` timestamp NULL DEFAULT NULL,
+                         `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `city_id` bigint unsigned NOT NULL,
+                         `gk_id` bigint unsigned DEFAULT NULL,
+                         `filial_id` bigint unsigned NOT NULL,
+                         `address` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `club_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         `apikey` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+                         PRIMARY KEY (`id`),
+                         UNIQUE KEY `clubs_name_unique` (`name`),
+                         UNIQUE KEY `clubs_club_id_unique` (`club_id`),
+                         UNIQUE KEY `clubs_apikey_unique` (`apikey`),
+                         KEY `clubs_city_id_foreign` (`city_id`),
+                         KEY `clubs_gk_id_foreign` (`gk_id`),
+                         KEY `clubs_filial_id_foreign` (`filial_id`),
+                         CONSTRAINT `clubs_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`),
+                         CONSTRAINT `clubs_filial_id_foreign` FOREIGN KEY (`filial_id`) REFERENCES `filials` (`id`),
+                         CONSTRAINT `clubs_gk_id_foreign` FOREIGN KEY (`gk_id`) REFERENCES `g_k_s` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `clubs` (`id`, `created_at`, `updated_at`, `name`, `city_id`, `gk_id`, `filial_id`, `address`, `club_id`, `apikey`) VALUES
@@ -72,125 +182,14 @@ INSERT INTO `clubs` (`id`, `created_at`, `updated_at`, `name`, `city_id`, `gk_id
 (21,	'2021-06-15 16:08:43',	'2021-06-15 16:08:43',	'Путилково',	4,	NULL,	1,	'д.Путилково ул.Новотушинская д.2',	'b9ea102a-0ec0-11eb-bbdb-005056838e97',	'f8e758e6-effe-4516-9ae1-34a946a0d5b9'),
 (22,	'2021-06-15 16:09:47',	'2021-06-15 16:09:47',	'Автозаводская',	4,	NULL,	1,	'ул.Автозаводская д.23Б',	'129d154c-0ec1-11eb-bbdb-005056838e97',	'f3525e34-b232-4c1e-a2b7-11ae35f8bbaf');
 
-DROP TABLE IF EXISTS `failed_jobs`;
-CREATE TABLE `failed_jobs` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
+
+-- DROP TABLE IF EXISTS `club-metro`;
+CREATE TABLE `club-metro` (
+                              `club_id` bigint unsigned NOT NULL,
+                              `metro_id` bigint unsigned NOT NULL,
+                              KEY `club_metro_club_id_foreign` (`club_id`),
+                              KEY `club_metro_metro_id_foreign` (`metro_id`),
+                              CONSTRAINT `club_metro_club_id_foreign` FOREIGN KEY (`club_id`) REFERENCES `clubs` (`id`),
+                              CONSTRAINT `club_metro_metro_id_foreign` FOREIGN KEY (`metro_id`) REFERENCES `metros` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `filials`;
-CREATE TABLE `filials` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `filials_name_unique` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `g_k_s`;
-CREATE TABLE `g_k_s` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `city_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `g_k_s_name_unique` (`name`),
-  KEY `g_k_s_city_id_foreign` (`city_id`),
-  CONSTRAINT `g_k_s_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `metros`;
-CREATE TABLE `metros` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `city_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `metros_name_unique` (`name`),
-  KEY `metros_city_id_foreign` (`city_id`),
-  CONSTRAINT `metros_city_id_foreign` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `migrations`;
-CREATE TABLE `migrations` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `password_resets`;
-CREATE TABLE `password_resets` (
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  KEY `password_resets_email_index` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `telescope_entries`;
-CREATE TABLE `telescope_entries` (
-  `sequence` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch_id` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `family_hash` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `should_display_on_index` tinyint(1) NOT NULL DEFAULT '1',
-  `type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `content` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`sequence`),
-  UNIQUE KEY `telescope_entries_uuid_unique` (`uuid`),
-  KEY `telescope_entries_batch_id_index` (`batch_id`),
-  KEY `telescope_entries_family_hash_index` (`family_hash`),
-  KEY `telescope_entries_created_at_index` (`created_at`),
-  KEY `telescope_entries_type_should_display_on_index_index` (`type`,`should_display_on_index`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `telescope_entries_tags`;
-CREATE TABLE `telescope_entries_tags` (
-  `entry_uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  KEY `telescope_entries_tags_entry_uuid_tag_index` (`entry_uuid`,`tag`),
-  KEY `telescope_entries_tags_tag_index` (`tag`),
-  CONSTRAINT `telescope_entries_tags_entry_uuid_foreign` FOREIGN KEY (`entry_uuid`) REFERENCES `telescope_entries` (`uuid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `telescope_monitoring`;
-CREATE TABLE `telescope_monitoring` (
-  `tag` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
 -- 2021-06-16 07:58:57

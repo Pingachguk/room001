@@ -127,8 +127,7 @@ class RequestDB
         $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
                 'apikey' => $apikey,
-//                'usertoken' => '9D8E4412CD540B2F8E564210384B626B'
-//                'usertoken' => $utoken
+                'usertoken' => $utoken
             ])
             ->get(env('API_ADDR') . '/appointment_trainers/', [
                 "club_id" => $club_id
@@ -157,13 +156,14 @@ class RequestDB
     public static function getTimesOfService($clubId, $utoken, $employeeId, $serviceId)
     {
         $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
 
         $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
                 'apikey' => $apikey,
                 'usertoken' => $utoken
             ])
-            ->get(env('API_ADDR') . '/appointment_services/', [
+            ->get(env('API_ADDR') . '/appointment_times/', [
                 "club_id" => $clubId,
                 "employee_id" => $employeeId,
                 "service_id" => $serviceId
@@ -188,4 +188,23 @@ class RequestDB
 
         return $response->json();
     }
+
+    public static function getProductsShop($clubId, $utoken)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
+
+
+        $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'usertoken' => $utoken
+            ])
+            ->get(env('API_ADDR') . '/price_list/', [
+                "club_id" => $clubId
+            ]);
+
+        return $response->json();
+    }
+
 }

@@ -3,16 +3,46 @@
 namespace App\Services\fitroomLkDb1c;
 
 use App\Services\Clubs;
+
 //use http\Env\Request;
 use Illuminate\Support\Facades\Http;
 
 class RequestDB
 {
-    public static function getClient(string $apiKey, string $utoken)
+    public static function postAuth($phone, $password)
     {
+        $apikey = env('TECH_APIKEY');
+        $client_auth = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+            ])
+            ->post(env('API_ADDR') . '/auth_client/',
+                [
+                    'phone' => $phone,
+                    'password' => $password,
+                ]);
+        return $client_auth->json();
+    }
+
+    public static function postRegister($clubId, $data)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+
+        $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey
+            ])
+            ->post(env('API_ADDR') . '/reg_and_auth_client/', $data);
+
+        return $response->json();
+    }
+
+    public static function getClient($clubId, $utoken)
+    {
+        $apikey = env('TECH_APIKEY');
         $client = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
-                'apikey' => $apiKey,
+                'apikey' => $apikey,
                 'usertoken' => $utoken,
             ])
             ->get(env('API_ADDR') . '/client/');
@@ -20,33 +50,41 @@ class RequestDB
         return $client;
     }
 
-    public static function getTickets(string $apiKey, string $utoken)
+    public static function getTickets($clubId, $utoken)
     {
+        $apikey = Clubs::getClubKeyById($clubId);
+
         $ticket = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
-                'apikey' => $apiKey,
+                'apikey' => $apikey,
                 'usertoken' => $utoken,
             ])
             ->get(env('API_ADDR') . '/tickets/');
-        return $ticket;
+
+        return $ticket->json();
     }
 
-    public static function getAppointments(string $apiKey, string $utoken)
+    public static function getAppointments($clubId, $utoken)
     {
+        $apikey = Clubs::getClubKeyById($clubId);
+
         $appointments = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
-                'apikey' => $apiKey,
+                'apikey' => $apikey,
                 'usertoken' => $utoken,
             ])
             ->get(env('API_ADDR') . '/appointments/');
-        return $appointments;
+
+        return $appointments->json();
     }
 
-    public static function getAppoint(string $apiKey, string $utoken, $clubId, $appointmentId)
+    public static function getAppoint($clubId, $utoken, $appointmentId)
     {
+        $apikey = CLubs::getClubKeyById($clubId);
+
         $appoint = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
-                'apikey' => $apiKey,
+                'apikey' => $apikey,
                 'usertoken' => $utoken,
             ])
             ->get(env('API_ADDR') . '/appoint/', [
@@ -54,7 +92,7 @@ class RequestDB
                 'appointment_id' => $appointmentId
             ]);
 
-        return $appoint;
+        return $appoint->json();
     }
 
     public static function updateClient($utoken, $data)
@@ -65,7 +103,7 @@ class RequestDB
             ])
             ->put(env('API_ADDR') . '/client/', $data);
 
-        return $response;
+        return $response->json();
     }
 
     public static function getCodeOnPhone($clubId, $data)
@@ -133,7 +171,7 @@ class RequestDB
             ])
             ->get(env('API_ADDR') . '/appointment_trainers/', [
                 "club_id" => $club_id
-        ]);
+            ]);
 
         return $response->json();
     }
@@ -200,7 +238,7 @@ class RequestDB
                 'apikey' => $apikey,
                 'usertoken' => $utoken
             ])
-            ->get(env('API_ADDR') . '/cart_cost/?cart='.$queryParam, [
+            ->get(env('API_ADDR') . '/cart_cost/?cart=' . $queryParam, [
                 "club_id" => $clubId,
                 "promocode" => $data['promocode']
             ]);

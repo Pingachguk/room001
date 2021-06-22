@@ -4,9 +4,38 @@ namespace App\Services;
 
 use App\Services\Clubs;
 use App\Services\fitroomLkDb1c\RequestDB;
+use Illuminate\Support\Facades\Http;
 
 class Client
 {
+    public static function getCalendarDay($data)
+    {
+        $weekName = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+        $monthName = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        $monthShortName = ['Янв', 'Фев', 'Мар', 'Апр', 'Мая', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Нояб', 'Дек'];
+
+        $today = false;
+
+        if (strftime('%Y-%m-%d', strtotime($data)) == strftime('%Y-%m-%d', strtotime(date('Y-m-d')))) {
+            $today = true;
+        } else {
+            $today = false;
+        }
+
+        return [
+            'id'=> strftime('%Y-%m-%d', strtotime($data)),
+            'day' => strftime('%d', strtotime($data)),
+            'day_name' => $weekName[date('w', strtotime($data))],
+            'month_number'=> strftime('%m', strtotime($data)),
+            'month_name' => $monthName[date('m', strtotime($data)) - 1],
+            'month_short_number'=> strftime('%d', strtotime($data)).' '.$monthShortName[date('m', strtotime($data)) - 1],
+            'date_iso'=> strftime('%Y-%m-%d', strtotime($data)),
+            'year'=> strftime('%Y', strtotime($data)),
+            'today'=> $today,
+            'time'=> strftime('%H:%M', strtotime($data))
+        ];
+    }
+
     public static function getCategory($title)
     {
         $categories = [
@@ -75,83 +104,157 @@ class Client
         }
     }
 
-    public static function setSubscriptions(array $clientJson, array $ticketsJson)
+    public static function setSubscriptions($clientObject, $client, $tickets)
     {
-        $clientJson['subscription_flags'] = [
-            'trainer' => [],
-            'office' => []
-        ];
-        foreach ($ticketsJson['data'] as $itemTicket) {
+        $clientObject['subscription_flags'] = ['trainer' => [], 'office' => []];
+        foreach ($tickets['data'] as $itemTicket) {
             if ($itemTicket['count'] != 0) {
-                $itemTicket['category_type'] = Client::getCategory($itemTicket['title']);
-                $itemTicket['category_subscription'] = explode(':', Client::getFlags($itemTicket['title']))[1];
-                $getterFlags = explode(':', Client::getFlags($itemTicket['title']));
+                $itemTicket['category_type'] = self::getCategory($itemTicket['title']);
+                $itemTicket['category_subscription'] = explode(':', self::getFlags($itemTicket['title']))[1];
+                $getterFlags = explode(':', self::getFlags($itemTicket['title']));
 
                 if ($getterFlags) {
-                    array_push($clientJson['subscription_flags'][$getterFlags[0]], $getterFlags[1]);
-                    array_push($clientJson['subscriptions'], $itemTicket);
+                    array_push($clientObject['subscription_flags'][$getterFlags[0]], $getterFlags[1]);
+                    array_push($clientObject['subscriptions'], $itemTicket);
                 }
             }
         }
-        return $clientJson;
+        return $client;
     }
 
-    public static function setAppointments(array $clientJson, array $appointmentsJson, string $utoken)
+    public static function setAppointments($clientObject, $client, $appointments, $utoken)
     {
-        foreach ($appointmentsJson as $itemApp) {
-            $appClubId = $itemApp['club_id'];
-            $appAppointmentId = $itemApp['appointment_id'];
-            $appKey = Clubs::getClubKeyById($appClubId);
+        if ($appointments['result'] && sizeof($appointments['data']) != 0) {
+            foreach ($appointments as $itemApp) {
+                $clubId = $itemApp['club_id'];
+                $appointmentId = $itemApp['appointment_id'];
 
-            $statusName = [
-                'canceled' => 'Отменено',
-                'ended' => 'Завершено',
-                'passes' => 'В процессе',
-                'planned' => 'Ожидается'
-            ];
-            $itemApp['status_name'] = $statusName[$itemApp['status']];
-            $clientJson['workouts_history'] = $itemApp;
-
-            if ($itemApp['status'] != 'canceled') {
-                $clientJson['metrics']['training'][$itemApp['status']] += 1;
-
-                $appoint = RequestDB::getAppoint(
-                    Clubs::getClubKeyById($appClubId), $utoken, $appClubId, $appAppointmentId
-                );
-                $appointJson = $appoint->json();
-
-                if ($appointJson['result']) {
-                    if (!($appointJson['data']['canceled'])) {
-                    /*
-                     * Парсинг фото с сервера 1С на свой
-                     */
-
-                    }
-                }
-            }
-        }
-        return $clientJson;
-    }
-
-    public static function subWrite($clubId, $utoken, $employeeId, $date, $time)
-    {
-        $services = RequestDB::getServicesTrainer($clubId, $utoken, $employeeId);
-
-        if ($services['result']) {
-            if ($services['data']) {
-                $serviceId = $services['data'][0]['id'];
-                $writeObject = [
-                    'club_id' => $clubId,
-                    'employee_id' => $employeeId,
-                    'service_id' => $serviceId,
-                    'date_time' => $date . ' ' . $time
+                $statusName = [
+                    'canceled' => 'Отменено',
+                    'ended' => 'Завершено',
+                    'passes' => 'В процессе',
+                    'planned' => 'Ожидается'
                 ];
+                $itemApp['status_name'] = $statusName[$itemApp['status']];
+                $clientObject['workouts_history'] = $itemApp;
 
-                $responseWrite = RequestDB::postWriting($clubId, $utoken, $writeObject);
-                return $responseWrite;
+                if ($itemApp['status'] != 'canceled') {
+                    $clientObject['metrics']['training'][$itemApp['status']] += 1;
+
+                    $appoint = RequestDB::getAppoint($clubId, $utoken, $appointmentId);
+
+                    if ($appoint['result']) {
+                        if (!($appoint['data']['canceled'])) {
+                            if ($appoint['data']['employee']['photo']) {
+                                $photoName = basename(parse_url($appoint['data']['employee']['photo'])['path']);
+                                $checkPhoto = file_exists('images/' . $photoName);
+
+                                if ($checkPhoto) {
+                                    $appoint['data']['employee']['photo'] = env('SERVER_IMAGES_DEBUG') . $photoName;
+                                } else {
+                                    $photoRead = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+                                        ->get($appoint['data']['employee']['photo']);
+                                    $content = $photoRead->body();
+                                    $photoWrite = fopen('images/' . $photoName, 'w');
+                                    fwrite($photoWrite, $content);
+                                    $appoint['data']['employee']['photo'] = env('SERVER_IMAGES_DEBUG') . $photoName;
+                                }
+                            }
+
+                            # Устанавливаем категории для записи
+                            if (trim($appoint['data']['employee']['name']) == 'Аренда зала' || trim($appoint['data']['employee']['name']) == 'Аренда студии') {
+                                $appoint['data']['category_type'] = 'office';
+
+                                if ($itemApp['status'] == 'ended') {
+                                    $clientObject['data']['category_type'] = 'trainer';
+                                }
+                            } else {
+                                $appoint['data']['category_type'] = 'trainer';
+
+                                if ($itemApp['status'] == 'ended') {
+                                    $clientObject['metrics']['training']['trainer'] += 1;
+                                }
+                            }
+
+                            if ($appoint['data']['status'] == 'reserved' ||
+                                $appoint['data']['status'] == 'temporarily_reserved_need_payment') {
+                                $appoint['data']['status_type'] = 'reserved';
+                            } else {
+                                $appoint['data']['status_type'] = 'active';
+                            }
+
+                            $employeeName = explode(' ', $appoint['data']['employee']['name']);
+                            if ($employeeName[0]) {
+                                $appoint['data']['exmployee']['surname'] = $employeeName[0];
+                            }
+                            if ($employeeName[1]) {
+                                $appoint['data']['employee']['firstname'] = $employeeName[1];
+                            }
+
+                            $appointJson['data']['date_object'] = self::getCalendarDay($appoint['data']['start_date']);
+                            $statusType = $appoint['data']['status_type'];
+                            $clientObject['workouts']['status_type'] = $appoint['data'];
+                            $clientObject['workouts']['count'] += 1;
+                        }
+                    }
+                } else {
+                    $clientObject['metrics']['training']['canceled'] += 1;
+                }
             }
-        } else {
-            return $services['result'];
         }
+
+        $clientObject['workouts_history'] = array_reverse($clientObject['workouts_history']);
+        $clientObject['office_id'] = $client['data']['club']['id'];
+        $clientObject['info'] = $client['data'];
+
+        return $clientObject;
+    }
+
+    public static function getClient($clubId, $utoken)
+    {
+        $client = RequestDB::getClient($clubId, $utoken);
+
+        $clientObject = [
+        'office_id'=> Null,
+        'is_verified'=> false,
+        'info'=> [],
+        'subscriptions'=> [],
+        'workouts'=> [
+            'reserved'=> [],
+            'active'=> [],
+            'count'=> 0
+        ],
+        'workouts_history'=> [],
+        'cabinet'=> [
+            'cover'=> 'https://i.pinimg.com/originals/2c/84/0e/2c840e86d494c5e809f850b00a69ad29.jpg',
+            'is_editable'=> true
+        ],
+        'metrics'=> [
+            'training'=> [
+                'trainer'=> 0,
+                'office'=> 0,
+
+                'canceled'=> 0,
+                'visited'=> 0,
+                'planned'=> 0,
+                'ended'=> 0,
+                'passes'=> 0
+            ]
+        ]
+    ];
+
+        if (!$client['result']) {
+            return $client;
+        }
+        $tickets = RequestDB::getTickets(13, $utoken);
+        $appointments = RequestDB::getAppointments(13, $utoken);
+
+        if ($tickets['result']) {
+            $clientObject = self::setSubscriptions($clientObject, $client, $tickets);
+        }
+
+        $clientObject = self::setAppointments($clientObject, $client, $appointments, $utoken);
+
+        return $clientObject;
     }
 }

@@ -44,32 +44,31 @@ class Trainers
         return $detail;
     }
 
-    public static function getCalendarDay($dateTime)
+    public static function getCalendarDay($data)
     {
         $weekName = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
         $monthName = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
         $monthShortName = ['Янв', 'Фев', 'Мар', 'Апр', 'Мая', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Нояб', 'Дек'];
 
-        $date = explode(' ', $dateTime);
-        $date2 = explode('-', $date[0]);
         $today = false;
 
-        if (strtotime($date[0]) == strtotime(date('Y-m-d'))) {
+        if (strftime('%Y-%m-%d', strtotime($data)) == strftime('%Y-%m-%d', strtotime(date('Y-m-d')))) {
             $today = true;
         } else {
             $today = false;
         }
 
         return [
-            'id' => $date[0],
-            'day' => $date2[2],
-            'day_name' => $weekName[date('w', strtotime($date[0]))],
-            'month_number' => $date2[1],
-            'month_name' => $monthName[date('m', strtotime($date[0])) - 1],
-            'month_short_number' => $date2[2] . ' ' . $monthShortName[date('m', strtotime($date[0])) - 1],
-            'date_iso' => $date[0],
-            'year' => $date2[0],
-            'today' => $today
+            'id'=> strftime('%Y-%m-%d', strtotime($data)),
+            'day' => strftime('%d', strtotime($data)),
+            'day_name' => $weekName[date('w', strtotime($data))],
+            'month_number'=> strftime('%m', strtotime($data)),
+            'month_name' => $monthName[date('m', strtotime($data)) - 1],
+            'month_short_number'=> strftime('%d', strtotime($data)).' '.$monthShortName[date('m', strtotime($data)) - 1],
+            'date_iso'=> strftime('%Y-%m-%d', strtotime($data)),
+            'year'=> strftime('%Y', strtotime($data)),
+            'today'=> $today,
+            'time'=> strftime('%H:%M', strtotime($data))
         ];
     }
 

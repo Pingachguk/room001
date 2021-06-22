@@ -27,34 +27,65 @@ class LK1cController extends Controller
         return response($clubs);
     }
 
-    public function login()
+    public function login(Request $request)
     {
+        $phone = $request->input('phone');
+        $password = $request->input('password');
 
+        $products = RequestDB::postAuth($phone, $password);
+        return response($products);
     }
 
-    public function register()
+    public function register(Request $request)
     {
+        $clubId = $request->header('club_id');
 
+        $response = RequestDB::postRegister($clubId, $request->input());
+        if ($response->json()['reuslt']) {
+            $utoken = $response->json()['data']['user_token'];
+            return response('200', 200)->cookie('utoken', $utoken, 60 * 24);
+        } else {
+            return response($response->json());
+        }
     }
 
-    public function getClient()
+    public function getClient(Request $request)
     {
+        $clubId = $request->header('club-id');
+        $utoken = $request->header('utoken');
 
+        $client = Client::getClient($clubId, $utoken);
+        return response($client);
     }
 
-    public function updateClient()
+    public function updateClient(Request $request)
     {
-
+        $utoken = $request->cookie('utoken');
+        $response = RequestDB::updateClient($utoken, $request->input());
+        return response($response->json());
     }
 
-    public function confirmPhone()
+    public function confirmPhone(Request $request)
     {
+        $data = $request->input();
+        $clubId = $request->header('club_id');
 
+        if (key_exists('confirmation_code', $data)) {
+            $response = RequestDB::postConfirmationCode($clubId, $data);
+            return response($response);
+        } else {
+            $code = RequestDB::getCodeOnPhone($clubId, $data);
+            return response($code);
+        }
     }
 
-    public function resetPassword()
+    public function resetPassword(Request $request)
     {
+        $data = $request->input();
+        $clubId = $request->header('club_id');
 
+        $response = RequestDB::postNewPassword($clubId, $data);
+        return response($response);
     }
 
     public function trainers(Request $request)
@@ -102,8 +133,17 @@ class LK1cController extends Controller
         $date = $request->input('date');
         $time = $request->input('time');
 
-        $subscriptions = Client::subWrite($clubId, $utoken, $employeeId, $date, $time);
-        return $subscriptions;
+        $subscriptions = Shop::subWrite($clubId, $utoken, $employeeId, $date, $time);
+        return response($subscriptions);
     }
 
+    public function subInvoice(Request $request)
+    {
+        $clubId = $request->input("club_id");
+        $appointmentId = $request->input("appointment_id");
+        $utoken = $request->cookie("usertoken");
+
+        $payment = Shop::subPay($clubId, $utoken, $appointmentId);
+        return response($payment);
+    }
 }

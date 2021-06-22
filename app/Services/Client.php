@@ -63,7 +63,7 @@ class Client
             'аренда зала автозаводская д. 23б' => 'office'
         ];
 
-        foreach ($categories as $item) {
+        foreach (array_keys($categories) as $item) {
             if ($item == $title) {
                 return $categories[$item];
             }
@@ -78,12 +78,10 @@ class Client
             'Пакет из 4 тренировок с тренером' => 'trainer:package',
             'Пакет из 8 тренировок с тренером' => 'trainer:package',
             'Пакет из 12 тренировок с тренером' => 'trainer:package',
-
             'Пакет из 5 тренировок с тренером' => 'trainer:package',
             'Пакет из 5 тренировок с тренером (Пироженко Руслан)' => 'trainer:package',
             'Пакет из 10 тренировок с тренером' => 'trainer:package',
             'Пакет из 10 тренировок с тренером (Пироженко Руслан)' => 'trainer:package',
-
             'Разовая аренда студии' => 'office:once',
             'Пакет на 5 посещений' => 'office:package',
             'Пакет на 10 посещений' => 'office:package',
@@ -92,12 +90,11 @@ class Client
             'Пакет Аренда студии на 10 посещений' => 'office:package',
             'Пакет Аренда студии на 20 посещений' => 'office:package',
             'Пакет на 100 посещений' => 'office:package',
-
             'Аренда зала Москва ул. Новотушинская д. 2' => 'office:once',
             'аренда зала автозаводская д. 23б' => 'office:once'
         ];
 
-        foreach ($categories as $item) {
+        foreach (array_keys($categories) as $item) {
             if ($item == $title) {
                 return $categories[$title];
             }
@@ -109,9 +106,10 @@ class Client
         $clientObject['subscription_flags'] = ['trainer' => [], 'office' => []];
         foreach ($tickets['data'] as $itemTicket) {
             if ($itemTicket['count'] != 0) {
-                $itemTicket['category_type'] = self::getCategory($itemTicket['title']);
-                $itemTicket['category_subscription'] = explode(':', self::getFlags($itemTicket['title']))[1];
-                $getterFlags = explode(':', self::getFlags($itemTicket['title']));
+                $title = trim($itemTicket['title']);
+                $itemTicket['category_type'] = self::getCategory($title);
+                $itemTicket['category_subscription'] = explode(':', self::getFlags($title))[1];
+                $getterFlags = explode(':', self::getFlags($title));
 
                 if ($getterFlags) {
                     array_push($clientObject['subscription_flags'][$getterFlags[0]], $getterFlags[1]);
@@ -119,7 +117,7 @@ class Client
                 }
             }
         }
-        return $client;
+        return $clientObject;
     }
 
     public static function setAppointments($clientObject, $client, $appointments, $utoken)
@@ -136,7 +134,7 @@ class Client
                     'planned' => 'Ожидается'
                 ];
                 $itemApp['status_name'] = $statusName[$itemApp['status']];
-                $clientObject['workouts_history'] = $itemApp;
+                array_push($clientObject['workouts_history'], $itemApp);
 
                 if ($itemApp['status'] != 'canceled') {
                     $clientObject['metrics']['training'][$itemApp['status']] += 1;
@@ -203,10 +201,9 @@ class Client
             }
         }
 
-        $clientObject['workouts_history'] = array_reverse($clientObject['workouts_history']);
-        $clientObject['office_id'] = $client['data']['club']['id'];
-        $clientObject['info'] = $client['data'];
-
+        array_push($clientObject['workouts_history'], array_reverse($clientObject['workouts_history']));
+        array_push($clientObject['office_id'], $client['data']['club']['id']);
+        array_push($clientObject['info'], $client['data']);
         return $clientObject;
     }
 
@@ -215,7 +212,7 @@ class Client
         $client = RequestDB::getClient($clubId, $utoken);
 
         $clientObject = [
-        'office_id'=> Null,
+        'office_id'=> [],
         'is_verified'=> false,
         'info'=> [],
         'subscriptions'=> [],
@@ -246,8 +243,8 @@ class Client
         if (!$client['result']) {
             return $client;
         }
-        $tickets = RequestDB::getTickets($clubId, $utoken);
-        $appointments = RequestDB::getAppointments($clubId, $utoken);
+        $tickets = RequestDB::getTickets(13, $utoken);
+        $appointments = RequestDB::getAppointments(13, $utoken);
 
         if ($tickets['result']) {
             $clientObject = self::setSubscriptions($clientObject, $client, $tickets);

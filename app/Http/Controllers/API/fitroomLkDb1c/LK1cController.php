@@ -51,7 +51,7 @@ class LK1cController extends Controller
 
     public function getClient(Request $request)
     {
-        $clubId = $request->header('club-id');
+        $clubId = $request->header('club_id');
         $utoken = $request->header('utoken');
 
         $client = Client::getClient($clubId, $utoken);

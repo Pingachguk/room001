@@ -27,3 +27,4 @@ Route::post('confirm_phone', [LK1cController::class, 'confirmPhone']);
 Route::post('reset_password', [LK1cController::class, 'resetPassword']);
 Route::post('subscription/write', [LK1cController::class, 'subWrite']);
 Route::post('subscription/product/reserved', [LK1cController::class, 'subInvoice']);
+

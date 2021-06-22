@@ -47,12 +47,12 @@ class RequestDB
             ])
             ->get(env('API_ADDR') . '/client/');
 
-        return $client;
+        return $client->json();
     }
 
     public static function getTickets($clubId, $utoken)
     {
-        $apikey = Clubs::getClubKeyById($clubId);
+        $apikey = env('TECH_APIKEY');
 
         $ticket = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
@@ -66,7 +66,7 @@ class RequestDB
 
     public static function getAppointments($clubId, $utoken)
     {
-        $apikey = Clubs::getClubKeyById($clubId);
+        $apikey = env('TECH_APIKEY');
 
         $appointments = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([

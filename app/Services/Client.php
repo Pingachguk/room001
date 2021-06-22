@@ -246,8 +246,8 @@ class Client
         if (!$client['result']) {
             return $client;
         }
-        $tickets = RequestDB::getTickets(13, $utoken);
-        $appointments = RequestDB::getAppointments(13, $utoken);
+        $tickets = RequestDB::getTickets($clubId, $utoken);
+        $appointments = RequestDB::getAppointments($clubId, $utoken);
 
         if ($tickets['result']) {
             $clientObject = self::setSubscriptions($clientObject, $client, $tickets);

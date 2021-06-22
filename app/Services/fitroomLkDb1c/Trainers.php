@@ -6,6 +6,44 @@ use Illuminate\Support\Facades\Http;
 
 class Trainers
 {
+    public static function checkPhoto($data)
+    {
+        $photoName = basename(parse_url($data["photo"])['path']);
+        $checkPhoto = file_exists('images/' . $photoName);
+
+        if ($checkPhoto) {
+            $data['photo'] = env('SERVER_IMAGES_DEBUG') . $photoName;
+        } else {
+            $photoRead = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+                ->get($data['photo']);
+            $content = $photoRead->body();
+            $photoWrite = fopen('images/' . $photoName, 'w');
+            fwrite($photoWrite, $content);
+            $data['photo'] = env('SERVER_IMAGES_DEBUG') . $photoName;
+        }
+
+        return $data;
+    }
+
+    public static function getDetail($clubId, $utoken, $employeeId)
+    {
+        $trainer = RequestDB::getTrainer($clubId, $utoken, $employeeId);
+        $detail = [];
+
+        if ($trainer['result']) {
+            $detail = $trainer["data"];
+
+            if ($detail["photo"]) {
+                $detail = self::checkPhoto($detail);
+                return [
+                    'result' => true,
+                    'data' => $detail
+                ];
+            }
+        }
+        return $detail;
+    }
+
     public static function getCalendarDay($dateTime)
     {
         $weekName = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
@@ -72,19 +110,7 @@ class Trainers
             foreach ($trainersJson["data"] as $item) {
 //                Получили тренеров и заменили фотки на локальный сервер (1С не даёт смотреть фото без авторизации)
                 if ($item["photo"]) {
-                    $photoName = basename(parse_url($item["photo"])['path']);
-                    $checkPhoto = file_exists('images/' . $photoName);
-
-                    if ($checkPhoto) {
-                        $item['photo'] = env('SERVER_IMAGES_DEBUG') . $photoName;
-                    } else {
-                        $photoRead = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
-                            ->get($item['photo']);
-                        $content = $photoRead->body();
-                        $photoWrite = fopen('images/' . $photoName, 'w');
-                        fwrite($photoWrite, $content);
-                        $item['photo'] = env('SERVER_IMAGES_DEBUG') . $photoName;
-                    }
+                    $item = self::checkPhoto($item);
                 }
 
                 if (!$item["position"]["id"]) {

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Services\Clubs;
+use App\Services\fitroomLkDb1c\RequestDB;
 
 class Client
 {
@@ -130,5 +131,27 @@ class Client
             }
         }
         return $clientJson;
+    }
+
+    public static function subWrite($clubId, $utoken, $employeeId, $date, $time)
+    {
+        $services = RequestDB::getServicesTrainer($clubId, $utoken, $employeeId);
+
+        if ($services['result']) {
+            if ($services['data']) {
+                $serviceId = $services['data'][0]['id'];
+                $writeObject = [
+                    'club_id' => $clubId,
+                    'employee_id' => $employeeId,
+                    'service_id' => $serviceId,
+                    'date_time' => $date . ' ' . $time
+                ];
+
+                $responseWrite = RequestDB::postWriting($clubId, $utoken, $writeObject);
+                return $responseWrite;
+            }
+        } else {
+            return $services['result'];
+        }
     }
 }

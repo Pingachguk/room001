@@ -107,6 +107,8 @@ class RequestDB
     public static function deleteTraining($clubId, $utoken, $appointmentId)
     {
         $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
+
         $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
                 'apikey' => $apikey,
@@ -132,6 +134,23 @@ class RequestDB
             ->get(env('API_ADDR') . '/appointment_trainers/', [
                 "club_id" => $club_id
         ]);
+
+        return $response->json();
+    }
+
+    public static function getTrainer($clubId, $utoken, $employeeId)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
+        $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'usertoken' => $utoken
+            ])
+            ->get(env('API_ADDR') . '/employee/', [
+                "club_id" => $clubId,
+                "employee_id" => $employeeId
+            ]);
 
         return $response->json();
     }
@@ -207,4 +226,36 @@ class RequestDB
         return $response->json();
     }
 
+    public static function getServicesTrainer($clubId, $utoken, $employeeId)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
+
+        $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'usertoken' => $utoken
+            ])
+            ->get(env('API_ADDR') . '/appointment_services/', [
+                "club_id" => $clubId,
+                "employee_id" => $employeeId
+            ]);
+
+        return $response->json();
+    }
+
+    public static function postWriting($clubId, $utoken, $data)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
+
+        $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'usertoken' => $utoken
+            ])
+            ->post(env('API_ADDR') . '/appointment/', $data);
+
+        return $response->json();
+    }
 }

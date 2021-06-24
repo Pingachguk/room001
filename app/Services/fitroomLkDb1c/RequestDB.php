@@ -81,6 +81,7 @@ class RequestDB
     public static function getAppointmentsClub($clubId, $utoken, $appointmentId)
     {
         $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
 
         $appointments = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
@@ -98,6 +99,7 @@ class RequestDB
     public static function getAppoint($clubId, $utoken, $appointmentId)
     {
         $apikey = CLubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
 
         $appoint = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
@@ -125,6 +127,19 @@ class RequestDB
 
         return $appoint->json();
 
+    }
+
+    public static function postAppoint($clubId, $utoken, $data)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+        $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'utoken' => $utoken
+            ])
+            ->post(env('API_ADDR') . '/appointment/', $data);
+
+        return $response->json();
     }
 
     public static function updateClient($utoken, $data)
@@ -264,6 +279,7 @@ class RequestDB
     public static function getPromocodeCheck($clubId, $utoken, $queryParam, $data)
     {
         $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
 
         $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
@@ -324,6 +340,21 @@ class RequestDB
                 'usertoken' => $utoken
             ])
             ->post(env('API_ADDR') . '/appointment/', $data);
+
+        return $response->json();
+    }
+
+    public static function postPayment($clubId, $utoken, $data)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+        $clubId = Clubs::getClubIdById($clubId);
+
+        $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'usertoken' => $utoken
+            ])
+            ->post(env('API_ADDR') . '/payment/', $data);
 
         return $response->json();
     }

@@ -28,3 +28,6 @@ Route::post('reset_password', [LK1cController::class, 'resetPassword']);
 Route::post('subscription/write', [LK1cController::class, 'subWrite']);
 Route::post('subscription/product/reserved', [LK1cController::class, 'subInvoice']);
 
+// SBER
+Route::get('payment/webhook_notify', [LK1cController::class, 'sberCallback']);
+

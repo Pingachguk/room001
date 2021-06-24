@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Client;
 use App\Services\fitroomLkDb1c\RequestDB;
 use App\Services\fitroomLkDb1c\Trainers;
+use App\Services\Sber;
 use App\Services\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -145,5 +146,17 @@ class LK1cController extends Controller
 
         $payment = Shop::subPay($clubId, $utoken, $appointmentId);
         return response($payment);
+    }
+
+    public function sberCallback(Request $request)
+    {
+        $mdOrder = $request->input('mdOrder');
+        $orderNumber = $request->input('orderNumber');
+        $operation = $request->input('operation');
+        $status = $request->input('status');
+
+        $callback = Sber::getCallback($mdOrder, $orderNumber, $operation, $status);
+
+        return response($callback);
     }
 }

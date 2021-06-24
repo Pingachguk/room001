@@ -78,6 +78,23 @@ class RequestDB
         return $appointments->json();
     }
 
+    public static function getAppointmentsClub($clubId, $utoken, $appointmentId)
+    {
+        $apikey = Clubs::getClubKeyById($clubId);
+
+        $appointments = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'usertoken' => $utoken,
+            ])
+            ->get(env('API_ADDR') . '/appointments/', [
+                'appointment_id' => $appointmentId,
+                'club_id' => $clubId
+            ]);
+
+        return $appointments->json();
+    }
+
     public static function getAppoint($clubId, $utoken, $appointmentId)
     {
         $apikey = CLubs::getClubKeyById($clubId);
@@ -93,6 +110,21 @@ class RequestDB
             ]);
 
         return $appoint->json();
+    }
+
+    public static function postAppointment($clubId, $utoken, $data)
+    {
+        $apikey = CLubs::getClubKeyById($clubId);
+
+        $appoint = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
+            ->withHeaders([
+                'apikey' => $apikey,
+                'usertoken' => $utoken,
+            ])
+            ->get(env('API_ADDR') . '/appoint/', $data);
+
+        return $appoint->json();
+
     }
 
     public static function updateClient($utoken, $data)
@@ -250,7 +282,6 @@ class RequestDB
     {
         $apikey = Clubs::getClubKeyById($clubId);
         $clubId = Clubs::getClubIdById($clubId);
-
 
         $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([

@@ -213,7 +213,7 @@ class Client
 
         $clientObject = [
         'office_id'=> [],
-        'is_verified'=> false,
+        'is_verified'=> true,
         'info'=> [],
         'subscriptions'=> [],
         'workouts'=> [

@@ -141,7 +141,7 @@ class LK1cController extends Controller
     {
         $clubId = $request->input("club_id");
         $appointmentId = $request->input("appointment_id");
-        $utoken = $request->cookie("usertoken");
+        $utoken = $request->header("usertoken");
 
         $payment = Shop::subPay($clubId, $utoken, $appointmentId);
         return response($payment);

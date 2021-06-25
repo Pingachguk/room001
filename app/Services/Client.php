@@ -252,6 +252,9 @@ class Client
 
         $clientObject = self::setAppointments($clientObject, $client, $appointments, $utoken);
 
-        return $clientObject;
+        return [
+            'result' => true,
+            'data' => $clientObject
+        ];
     }
 }

@@ -123,6 +123,7 @@ class LK1cController extends Controller
         $utoken = $request->cookie('usertoken');
 
         $products = Shop::getShopProducts($clubId, $utoken);
+        info($products);
         return response($products);
     }
 
@@ -146,6 +147,28 @@ class LK1cController extends Controller
 
         $payment = Shop::subPay($clubId, $utoken, $appointmentId);
         return response($payment);
+    }
+
+    public function setTrain(Request $request)
+    {
+
+    }
+
+    public function buyTrain(Request $request)
+    {
+        $clubId = $request->input('club_id');
+        $productId = $request->input('product_id');
+        $promocode = $request->input('promocode');
+
+        $result = Null;
+        return response($result);
+    }
+
+    public function checkOrder(Request $request)
+    {
+        $orderId = $request->input('order_id');
+        $result = Sber::getCallback($orderId, Null, Null, Null);
+        return response($result);
     }
 
     public function sberCallback(Request $request)

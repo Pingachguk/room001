@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Http\Controllers\OrderController;
 use App\Services\fitroomLkDb1c\RequestDB;
 use Illuminate\Support\Facades\Http;
 
@@ -85,7 +86,7 @@ class Sber
 
         $orderId = $mdOrder;
 //        Достаем из БД заказ
-        $orderQuery = database.order_app.read_order(order_id = order_id);
+        $orderQuery = OrderController::findById($orderId)->toArray();
 
         if ($orderQuery) {
             if (!$orderQuery['confirm']) {
@@ -113,19 +114,20 @@ class Sber
                         }
 
                         if ($resultAction) {
-                            $db_data = [
-                                'order_id' => $orderId,
-                                'confirm' => false
-                            ];
+//                            $db_data = [
+//                                'order_id' => $orderId,
+//                                'confirm' => false
+//                            ];
+//                            $db_object = database.schemas.OrderConfirm(db_data);
+//                            $order_confirm = database.order_app.confirm_order(db_object);
+//
+//                            $operation = false;
+//
+//                            if ($operationItem) {
+//                                $operation = $operationItem;
+//                            }
 
-                            $db_object = database.schemas.OrderConfirm($db_data);
-                            $order_confirm = database.order_app.confirm_order(db_object);
-                            $operation = false;
-
-                            if ($operationItem) {
-                                $operation = $operationItem;
-                            }
-
+                            $order = OrderController::confirm($orderId);
                             $price = strval(intval($orderCheck['amount'])/100);
                             $tgMessage = "Клиент: {$clientPhone}\r\nПродукт: {$orderCheck['orderDescription']}\r\nСтоимость: {$price}";
                             $tgMessageFitroom = "Продукт: {$orderCheck['orderDescription']}\r\nСтоимость: {$price}";

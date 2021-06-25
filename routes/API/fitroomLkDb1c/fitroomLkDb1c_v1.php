@@ -13,21 +13,37 @@ use App\Http\Controllers\API\fitroomLkDb1c\LK1cController;
 | Роуты для личного кабинета fitroom c привязкой к удаленной базе 1С
 |
 */
+// CLUBS
 Route::get('clubs', [LK1cController::class, 'clubs']);
 Route::get('club/{id}', [LK1cController::class, 'club']);
+
+// TRAINERS
 Route::get('trainers', [LK1cController::class, 'trainers']);
 Route::get('trainers/detail', [LK1cController::class, 'trainersDetail']);
 Route::get('training/cancel', [LK1cController::class, 'trainingCancel']);
-Route::get('shop/products', [LK1cController::class, 'products']);
+
+// CLIENTS
 Route::post('auth/login', [LK1cController::class, 'login']);
 Route::post('reg', [LK1cController::class, 'register']);
 Route::get('client', [LK1cController::class, 'getClient']);
 Route::put('client', [LK1cController::class, 'updateClient']);
-Route::post('confirm_phone', [LK1cController::class, 'confirmPhone']);
-Route::post('reset_password', [LK1cController::class, 'resetPassword']);
+Route::post('auth/confirm-phone', [LK1cController::class, 'confirmPhone']);
+Route::post('auth/reset', [LK1cController::class, 'resetPassword']);
+
+//SHOP
+Route::get('shop/products', [LK1cController::class, 'products']);
 Route::post('subscription/write', [LK1cController::class, 'subWrite']);
 Route::post('subscription/product/reserved', [LK1cController::class, 'subInvoice']);
+Route::post('subscription/write/once', [LK1cController::class, 'setTrain']);
+Route::post('subscription/product/pay', [LK1cController::class, 'buyTrain']);
+Route::post('order/check', [LK1cController::class, 'checkOrder']);
 
 // SBER
 Route::get('payment/webhook_notify', [LK1cController::class, 'sberCallback']);
+
+// TEST
+Route::get('test', function () {
+    $result = \App\Http\Controllers\OrderController::findById('3121');
+    return response($result);
+});
 

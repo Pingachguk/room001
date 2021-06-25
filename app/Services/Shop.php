@@ -135,7 +135,10 @@ class Shop
         }
 
         $subscriptions['is_verified'] = $isVerified;
-        return $subscriptions;
+        return [
+            'result' => true,
+            'data' => $subscriptions
+        ];
     }
 
     public static function subWrite($clubId, $utoken, $employeeId, $date, $time)
@@ -243,6 +246,25 @@ class Shop
         }
         return [
             'result' => false,
-            'error' => 'Ошибка при оплате забронированной тренировки'];
+            'error' => 'Ошибка при оплате забронированной тренировки'
+        ];
+    }
+
+    public static function pay($clubId, $utoken, $productId, $promocode)
+    {
+        $client = RequestDB::getClient($clubId, $utoken);
+        $clientPhone = $client['data']['phone'];
+
+        $products = RequestDB::getProductsShop($clubId, $utoken);
+
+        foreach ($products as $product) {
+            if ($product['id'] == $productId) {
+                $productPrice = $product['price'];
+
+                if ($promocode) {
+
+                }
+            }
+        }
     }
 }

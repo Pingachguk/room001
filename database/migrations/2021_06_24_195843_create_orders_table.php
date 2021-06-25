@@ -19,21 +19,21 @@ class CreateOrdersTable extends Migration
 //            action = Column(String, index=True)
             $table->string('action');
 //            confirm = Column(Boolean, default=False)
-            $table->boolean('confirm')->default(false);
+            $table->boolean('confirm');
 //            club_id = Column(String)
-            $table->string('club_id');
+            $table->string('club_id')->default(Null);
 //            utoken = Column(String)
-            $table->string('utoken');
+            $table->string('utoken')->default(Null);
 //            phone = Column(String)
-            $table->string('phone');
+            $table->string('phone')->default(Null);
 //            type = Column(String)
-            $table->string('type');
+            $table->string('type')->default(Null);
 //            ticket_id = Column(String)
-            $table->string('ticket_id');
+            $table->string('ticket_id')->default(Null);
 //            appointment_id = Column(String)
-            $table->string('appointment_id');
+            $table->string('appointment_id')->default(Null);
 //            promocode = Column(String)
-            $table->string('promocode');
+            $table->string('promocode')->default(Null);
             $table->timestamps();
         });
     }

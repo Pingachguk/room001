@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Http\Controllers\OrderController;
 use App\Services\fitroomLkDb1c\RequestDB;
 
 class Shop
@@ -67,6 +68,22 @@ class Shop
         foreach (array_keys($categories) as $item) {
             if ($item == $title) return $categories[$item];
         }
+    }
+
+    public static function promocodeCheck($clubId, $utoken, $productId, $promocode)
+    {
+        $cartObj = [
+            "cart_array" => [
+                [
+                    "purchase_id" => $productId,
+                    "count" => 1
+                ]
+            ]
+        ];
+        $queryParam = json_encode($cartObj);
+
+        $result = RequestDB::getPromocodeCheck($clubId, $utoken, $queryParam, $promocode);
+        return $result;
     }
 
     public static function getShopProducts($clubId, $utoken)
@@ -262,8 +279,41 @@ class Shop
                 $productPrice = $product['price'];
 
                 if ($promocode) {
+                    $promocodeResponse = self::promocodeCheck($clubId, $utoken, $productId, $promocode);
 
+                    if ($promocodeResponse['result']){
+                        $productPrice = $promocodeResponse['data']['total_amount'];
+                    }
                 }
+                $paymentItem = [
+                    'phone' => $clientPhone,
+                    'description' => $product['title'],
+                    'category_type' => $product['type'],
+                    'amount' => strval($productPrice),
+                    'orderNumber' => '#FR'.random_int(111111, 999999)
+                ];
+
+                $paymentData = Sber::sberRegisterDo($paymentItem);
+
+                if ($paymentData) {
+                    $db_data = [
+                        'order_id' => $paymentData['orderId'],
+                        'action' => 'subscription',
+                        'utoken' => $utoken,
+                        'phone' => $clientPhone,
+                        'club_id' => $clubId,
+                        'type' => $product['type'],
+                        'ticket_id' => $productId,
+                        'promocode' => $promocode
+                    ];
+
+                    $orderCreate = OrderController::create($db_data);
+                }
+
+                return [
+                  'result' => true,
+                  'data' => $paymentData
+                ];
             }
         }
     }

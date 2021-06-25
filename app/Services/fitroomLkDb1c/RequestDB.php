@@ -276,7 +276,7 @@ class RequestDB
         return $response->json();
     }
 
-    public static function getPromocodeCheck($clubId, $utoken, $queryParam, $data)
+    public static function getPromocodeCheck($clubId, $utoken, $queryParam, $promocode)
     {
         $apikey = Clubs::getClubKeyById($clubId);
         $clubId = Clubs::getClubIdById($clubId);
@@ -288,7 +288,7 @@ class RequestDB
             ])
             ->get(env('API_ADDR') . '/cart_cost/?cart=' . $queryParam, [
                 "club_id" => $clubId,
-                "promocode" => $data['promocode']
+                "promocode" => $promocode
             ]);
 
         return $response->json();

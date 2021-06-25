@@ -139,28 +139,29 @@ class LK1cController extends Controller
         return response($subscriptions);
     }
 
-    public function subInvoice(Request $request)
+    public function buyReservedTrain(Request $request)
     {
         $clubId = $request->input("club_id");
         $appointmentId = $request->input("appointment_id");
         $utoken = $request->header("usertoken");
 
-        $payment = Shop::subPay($clubId, $utoken, $appointmentId);
+        $payment = Shop::payReservedTrain($clubId, $utoken, $appointmentId);
         return response($payment);
     }
 
-    public function setTrain(Request $request)
-    {
-
-    }
-
-    public function buyTrain(Request $request)
+    public function reserveTrainBeforePay(Request $request)
     {
         $clubId = $request->input('club_id');
-        $productId = $request->input('product_id');
+        $utoken = $request->header('usertoken');
+        $category = $request->input('category');
+        $type = $request->input('type');
+        $employeeId = $request->input('employee_id');
+        $date = $request->input('date');
+        $time = $request->input('time');
         $promocode = $request->input('promocode');
 
-        $result = Null;
+        $result = Shop::reserveBeforePay($clubId, $utoken, $category, $type, $employeeId, $date, $time, $promocode);
+
         return response($result);
     }
 

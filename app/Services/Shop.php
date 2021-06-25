@@ -180,7 +180,91 @@ class Shop
         }
     }
 
-    public static function subPay($clubId, $utoken, $appointmentId)
+    public static function reserveBeforePay($clubId, $utoken, $category, $type, $employeeId, $date, $time, $promocode)
+    {
+        $serviceId = Null;
+        $products = Null;
+        $client = RequestDB::getClient($clubId, $utoken);
+        $clientPhone = $client['phone'];
+        $writingResponse = Null;
+
+        $description = [
+            'trainer:first' => 'Оплата пробной тренировки с тренером',
+            'trainer:once' => 'Оплата разовой тренировки с тренером',
+            'trainer:package' => 'Оплата пакета тренировок с тренером',
+            'office:once' => 'Оплата разовой аренды студии',
+            'office:package' => 'Оплата пакета аренды студии'
+        ];
+
+        $categoryType = $category;
+        $itemDescription = '';
+        if ($description[$category.':'.$type]) {
+            $itemDescription = $description[$category.':'.$type];
+            $itemCategory = $category.':'.$type;
+
+            if ($itemCategory == 'trainer:first') {
+                $categoryType = 'first';
+            }
+        } else {
+            $itemDescription = 'Оплата услуги';
+        }
+
+//        product_price = product_list['data'][item.type][item.category][0]['price']
+        $productPrice = $products['data'][$type][$category][0]['price'];
+        if ($promocode) {
+            $promocodeResponse = self::promocodeCheck($clubId, $utoken,$products['data'][$type][$category][0]['id'], $promocode);
+
+            if ($promocodeResponse['result']) {
+                $productPrice = $promocodeResponse['data']['total_amount'];
+            }
+        }
+
+        $paymentItem = [
+            'phone' => $clientPhone,
+            'description' => 'Оплата тренировки',
+            'category_type' => $categoryType,
+            'amount' => strval($productPrice), #Берем первый абоменемет в разовых
+            'orderNumber' => '#FR' . random_int(111111, 999999)
+        ];
+        $servicesTrainer = RequestDB::getServicesTrainer($clubId, $utoken, $employeeId);
+
+        if ($servicesTrainer['result']) {
+            if ($servicesTrainer['data']) {
+                $serviceId = $servicesTrainer['data'][0]['id'];
+
+                $writeObject = [
+                    'club_id' => $clubId,
+                    'employee_id' => $employeeId,
+                    'service_id' => $serviceId,
+                    'date_time' => $date.' '.$time
+                ];
+
+                $writingResponse = RequestDB::postWriting($clubId, $utoken, $writeObject);
+                if ($writingResponse['result']) {
+                    $paymentData = Sber::sberRegisterDo($paymentItem);
+
+                    if ($paymentData) {
+                        $db_data = [
+                            'order_id'=> $paymentData['orderId'],
+                            'action'=> 'timetable',
+                            'utoken'=> $utoken,
+                            'phone'=> $clientPhone,
+                            'club_id'=> $clubId,
+                            'type'=> $categoryType,
+                            'appointment_id'=> $writingResponse['data']['appointment_id'],
+                            'promocode'=> $promocode
+                        ];
+
+                        $order = OrderController::create($db_data);
+                    }
+                    $writingResponse['data']['payment'] = $paymentData;
+                }
+            }
+        }
+        return $writingResponse;
+    }
+
+    public static function payReservedTrain($clubId, $utoken, $appointmentId)
     {
         $client = RequestDB::getClient($clubId, $utoken);
 
@@ -228,10 +312,10 @@ class Shop
 
                             $paymentItem = [
                                 'phone' => $clientPhone,
-                                'description' => 'Оплата тренеровки',
+                                'description' => 'Оплата тренировки',
                                 'category_type' => $serviceType,
                                 'amount' => $productAmount, #Берем первый абоменемет в разовых
-                                'orderNumber' => '#FR'.random_int(111111, 999999)
+                                'orderNumber' => '#FR' . random_int(111111, 999999)
                             ];
 
 //                          Регистрируем заказ и получаем ссылку на оплату
@@ -248,8 +332,7 @@ class Shop
                                     'appointment_id' => $appointmentId,
                                 ];
 //                                Добавление в БД заказ
-//                                db_object = database.schemas.OrderCreate(**db_data)
-//                                order_create = order_app.create_order(db_object)
+                                $order = OrderController::create($paymentData);
                             }
 
                             return [
@@ -281,7 +364,7 @@ class Shop
                 if ($promocode) {
                     $promocodeResponse = self::promocodeCheck($clubId, $utoken, $productId, $promocode);
 
-                    if ($promocodeResponse['result']){
+                    if ($promocodeResponse['result']) {
                         $productPrice = $promocodeResponse['data']['total_amount'];
                     }
                 }
@@ -290,7 +373,7 @@ class Shop
                     'description' => $product['title'],
                     'category_type' => $product['type'],
                     'amount' => strval($productPrice),
-                    'orderNumber' => '#FR'.random_int(111111, 999999)
+                    'orderNumber' => '#FR' . random_int(111111, 999999)
                 ];
 
                 $paymentData = Sber::sberRegisterDo($paymentItem);
@@ -311,8 +394,8 @@ class Shop
                 }
 
                 return [
-                  'result' => true,
-                  'data' => $paymentData
+                    'result' => true,
+                    'data' => $paymentData
                 ];
             }
         }

@@ -33,9 +33,9 @@ Route::post('auth/reset', [LK1cController::class, 'resetPassword']);
 //SHOP
 Route::get('shop/products', [LK1cController::class, 'products']);
 Route::post('subscription/write', [LK1cController::class, 'subWrite']);
-Route::post('subscription/product/reserved', [LK1cController::class, 'subInvoice']);
-Route::post('subscription/write/once', [LK1cController::class, 'setTrain']);
-Route::post('subscription/product/pay', [LK1cController::class, 'buyTrain']);
+Route::post('subscription/product/reserved', [LK1cController::class, 'buyReservedTrain']);
+Route::post('subscription/write/once', [LK1cController::class, 'reserveTrainBeforePay']);
+Route::post('subscription/product/pay', [LK1cController::class, 'buySub']);
 Route::post('order/check', [LK1cController::class, 'checkOrder']);
 
 // SBER

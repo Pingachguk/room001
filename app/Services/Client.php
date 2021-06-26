@@ -224,9 +224,9 @@ class Client
             }
         }
 
-        array_push($clientObject['workouts_history'], array_reverse($clientObject['workouts_history']));
-        array_push($clientObject['office_id'], $client['data']['club']['id']);
-        array_push($clientObject['info'], $client['data']);
+        $clientObject['workouts_history'] = array_reverse($clientObject['workouts_history']);
+        $clientObject['office_id'] = $client['data']['club']['id'];
+        $clientObject['info'] = $client['data'];
         return $clientObject;
     }
 
@@ -266,8 +266,8 @@ class Client
         if (!$client['result']) {
             return $client;
         }
-        $tickets = RequestDB::getTickets(13, $utoken);
-        $appointments = RequestDB::getAppointments(13, $utoken);
+        $tickets = RequestDB::getTickets($clubId, $utoken);
+        $appointments = RequestDB::getAppointments($clubId, $utoken);
 
         if ($tickets['result']) {
             $clientObject = self::setSubscriptions($clientObject, $client, $tickets);

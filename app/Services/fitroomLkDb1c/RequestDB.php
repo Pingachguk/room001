@@ -144,8 +144,11 @@ class RequestDB
 
     public static function updateClient($utoken, $data)
     {
+        $apikey = env('TECH_APIKEY');
+
         $response = Http::withBasicAuth(env('APP_BASIC_LOGIN'), env('APP_BASIC_PASSWORD'))
             ->withHeaders([
+                'apikey' => $apikey,
                 'usertoken' => $utoken,
             ])
             ->put(env('API_ADDR') . '/client/', $data);

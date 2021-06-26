@@ -106,9 +106,9 @@ class LK1cController extends Controller
 
     public function updateClient(Request $request)
     {
-        $utoken = $request->cookie('utoken');
+        $utoken = $request->header('utoken');
         $response = RequestDB::updateClient($utoken, $request->input());
-        return response($response->json());
+        return response($response);
     }
 
     public function confirmPhone(Request $request)

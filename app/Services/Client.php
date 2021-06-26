@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\VerificationMail;
 use App\Services\Clubs;
 use App\Services\fitroomLkDb1c\RequestDB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 
 class Client
 {
@@ -99,6 +101,27 @@ class Client
                 return $categories[$title];
             }
         }
+    }
+
+    public static function sendPassport($name, $lastName, $phone, $passportNumber, $passportDate, $passportPlace, $images)
+    {
+        $body = "Пользователь: {$phone}\r\nИмя: {$name}\r\nФамилия: {$lastName}\r\nНомер / Серия: {$passportNumber}\r\nДата выдачи: {$passportDate}\r\nКем выдан: {$passportPlace}";
+        $receiverEmail = "arenda@fitroom.ru";
+
+        $data = new \stdClass();
+        $data->phone=$phone;
+        $data->body=$body;
+
+//        foreach ($images as $image) {
+//            $filename = $image;
+//
+//            $attachment = fopen('images/'.$filename, 'r+');
+//
+//        }
+
+        Mail::to($receiverEmail)->send(new VerificationMail($data));
+
+        return ['result' => true];
     }
 
     public static function setSubscriptions($clientObject, $client, $tickets)

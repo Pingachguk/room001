@@ -28,6 +28,36 @@ class LK1cController extends Controller
         return response($clubs);
     }
 
+    public function uploadImage(Request $request)
+    {
+        $image = $request->input('image');
+
+        $contentType = [
+            'image/png' => 'png',
+            'image/jpg' => 'jpg',
+            'image/jpeg' => 'jpeg'
+        ];
+
+//        if (array_key_exists(filetype())){
+//
+//        }
+
+        if (getimagesize($image) < 30000000) {
+            $newFilename = 'IMAGE'.random_int(11111111, 999999999);
+            $photoWrite = fopen('images/uploads' . $newFilename, 'w');
+            fwrite($photoWrite, $image);
+            return [
+                'result' => true,
+                'filename' => $newFilename
+            ];
+        } else {
+            return [
+                'result' => false,
+                'message' => 'Загрузите изображение меньшего размера'
+            ];
+        }
+    }
+
     public function login(Request $request)
     {
         $phone = $request->input('phone');
@@ -48,6 +78,21 @@ class LK1cController extends Controller
         } else {
             return response($response->json());
         }
+    }
+
+    public function verified(Request $request)
+    {
+        $name = $request->input('name');
+        $lastName = $request->input('last_name');
+        $phone = $request->input('phone');
+        $passportNumber = $request->input('passport_number');
+        $passportDate = $request->input('passport_date');
+        $passportPlace = $request->input('passport_place');
+        $images = $request->input('images');
+
+        $result = Client::sendPassport($name, $lastName, $phone, $passportNumber, $passportDate, $passportPlace, $images);
+
+        return response($result);
     }
 
     public function getClient(Request $request)

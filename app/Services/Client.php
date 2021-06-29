@@ -111,13 +111,12 @@ class Client
         $data = new \stdClass();
         $data->phone=$phone;
         $data->body=$body;
+        $data->images = [];
 
-//        foreach ($images as $image) {
-//            $filename = $image;
-//
-//            $attachment = fopen('images/'.$filename, 'r+');
-//
-//        }
+        foreach ($images as $image) {
+            $result = \Illuminate\Support\Facades\Storage::disk('public')->put('images/test', $image);
+            array_push($data->images, $result);
+        }
 
         Mail::to($receiverEmail)->send(new VerificationMail($data));
 

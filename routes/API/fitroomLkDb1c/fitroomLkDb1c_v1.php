@@ -47,7 +47,7 @@ Route::get('payment/webhook_notify', [LK1cController::class, 'sberCallback']);
 
 // TEST
 Route::get('test', function () {
-    $result = \App\Http\Controllers\OrderController::findById('3121');
-    return response($result);
+//    $result = \App\Http\Controllers\OrderController::findById('3121');
+//    return response($result);
 });
 

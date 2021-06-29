@@ -1,6 +1,6 @@
 @component('mail::message')
 # Заявка на подтверждение паспорта
-# От: {{ $phone }}
+# От: {{ $data->phone }}
 
-{{ $body }}
+{{ $data->body }}
 @endcomponent

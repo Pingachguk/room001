@@ -88,7 +88,7 @@ class LK1cController extends Controller
         $passportNumber = $request->input('passport_number');
         $passportDate = $request->input('passport_date');
         $passportPlace = $request->input('passport_place');
-        $images = $request->input('images');
+        $images = $request->file('images');
 
         $result = Client::sendPassport($name, $lastName, $phone, $passportNumber, $passportDate, $passportPlace, $images);
 

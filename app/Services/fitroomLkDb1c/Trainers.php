@@ -75,7 +75,6 @@ class Trainers
     public static function getServices($clubId, $utoken)
     {
         $response = RequestDB::getServices($clubId, $utoken);
-
         $services = array();
 
         if ($response['result']) {
@@ -147,7 +146,7 @@ class Trainers
                         if ($itemHour >= intval('18') && $itemHour <= intval('23')) $itemSeason = 'evening';
                         if ($itemHour >= intval('00') && $itemHour <= intval('05')) $itemSeason = 'night';
 
-                        if (!in_array($itemDateString, $times)) {
+                        if (!in_array($itemDateString, array_keys($times))) {
                             $times[$itemDateString] = [
                                 "morning" => [
                                     "season" => 'morning',
@@ -187,7 +186,7 @@ class Trainers
                         $itemDateString = $date[0];
                         $calendar[$itemDateString] = self::getCalendarDay($itemTime['date_time']);
 
-                        if (!in_array($itemTime, $dateTimes)) {
+                        if (!in_array($itemDateString, array_keys($dateTimes))) {
                             $dateTimes[$itemDateString] = [];
                         }
 

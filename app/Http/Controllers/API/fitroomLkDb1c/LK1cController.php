@@ -168,7 +168,6 @@ class LK1cController extends Controller
         $utoken = $request->cookie('usertoken');
 
         $products = Shop::getShopProducts($clubId, $utoken);
-        info($products);
         return response($products);
     }
 
@@ -208,6 +207,18 @@ class LK1cController extends Controller
         $result = Shop::reserveBeforePay($clubId, $utoken, $category, $type, $employeeId, $date, $time, $promocode);
 
         return response($result);
+    }
+
+    public function buySub(Request $request)
+    {
+        $utoken = $request->header('usertoken');
+        $clubId = $request->input('club_id');
+        $productId = $request->input('product_id');
+        $promocode = $request->input('promocode');
+
+        $result = Shop::pay($clubId, $utoken, $productId, $promocode);
+
+        return $result;
     }
 
     public function checkOrder(Request $request)

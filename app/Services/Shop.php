@@ -88,12 +88,6 @@ class Shop
 
     public static function getShopProducts($clubId, $utoken)
     {
-        $authTech = RequestDB::postAuth(env('TECH_PHONE'), env('TECH_PASSWORD'));
-        $techUtoken = Null;
-        if ($authTech['result']) {
-            $techUtoken = $authTech['data']['user_token'];
-        }
-
         $isVerified = false;
         $subscriptions = [
             'first' => [
@@ -109,29 +103,41 @@ class Shop
             ]
         ];
 
-        # ЗАПРОС С ТЕХНИЧЕСКОГО АККАУНТА
-        $productTech = RequestDB::getProductsShop($clubId, $techUtoken);
+        if(!$utoken) {
+            #   ПОЛУЧЕНИЕ ТОКЕНА С ТЕХНИЧЕСКОГО АККАУНТА
+            $authTech = RequestDB::postAuth(env('TECH_PHONE'), env('TECH_PASSWORD'));
+            $utoken = $authTech['data']['user_token'];
+        }
+//
+//        $techUtoken = Null;
+//        if ($authTech['result']) {
+//            $techUtoken = $authTech['data']['user_token'];
+//        }
 
-        # ЗАПРОС С КЛИЕНТСКОГО
+
+//        $productTech = RequestDB::getProductsShop($clubId, $techUtoken);
+
+        # ЗАПРОС каталога
         $productClient = RequestDB::getProductsShop($clubId, $utoken);
 
-        if ($productTech['result']) {
-            $data = $productTech['data'];
-            foreach ($data as $item) {
-                $category = Shop::getCategory($item);
-                if ($category) {
-                    $typeCategory = array_keys($category)[0];
-
-                    if ($category[$typeCategory] == 'office') {
-                        $isVerified = true;
-                    }
-
-                    if ($typeCategory != 'first') {
-                        $subscriptions[$typeCategory][$category[$typeCategory]] = $item;
-                    }
-                }
-            }
-        }
+//        if ($productTech['result']) {
+//            $data = $productTech['data'];
+//            foreach ($data as $item) {
+//                $category = Shop::getCategory($item);
+//                if ($category) {
+//                    $typeCategory = array_keys($category)[0];
+//
+//                    if ($category[$typeCategory] == 'office') {
+//                        $isVerified = true;
+//                    }
+//
+//                    if ($typeCategory !== 'first') {
+////                        $subscriptions[$typeCategory][$category[$typeCategory]] = $item;
+//                        array_push($subscriptions[$typeCategory][$category[$typeCategory]], $item);
+//                    }
+//                }
+//            }
+//        }
 
         if ($productClient['result']) {
             $data = $productClient['data'];
@@ -139,13 +145,14 @@ class Shop
                 $category = Shop::getCategory($item);
                 if ($category) {
                     $typeCategory = array_keys($category)[0];
+                    $item['category_type'] = $category[$typeCategory];
 
                     if ($category[$typeCategory] == 'office') {
                         $isVerified = true;
                     }
 
-                    if ($typeCategory != 'first') {
-                        $subscriptions[$typeCategory][$category[$typeCategory]] = $item;
+                    if ($typeCategory !== 'first') {
+                        array_push($subscriptions[$typeCategory][$category[$typeCategory]], $item);
                     }
                 }
             }
